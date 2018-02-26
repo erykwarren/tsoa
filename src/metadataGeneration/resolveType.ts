@@ -96,6 +96,9 @@ export function resolveType(typeNode: ts.TypeNode, parentNode?: ts.Node, extract
     if (enumType) { return enumType; }
   }
 
+  const aliasType = getAliasType(typeReference.typeName);
+  if (aliasType) { return aliasType; }
+
   const literalType = getLiteralType(typeReference.typeName);
   if (literalType) { return literalType; }
 
@@ -254,6 +257,21 @@ function getEnumerateType(typeName: ts.EntityName, extractEnum = true): Tsoa.Typ
       }),
     } as Tsoa.EnumerateType;
   }
+}
+
+function getAliasType(typeName: ts.EntityName): Tsoa.Type | undefined {
+  const aliasName = (typeName as ts.Identifier).text;
+  const aliasNodes = MetadataGenerator.current.nodes
+    .filter((node) => node.kind === ts.SyntaxKind.TypeAliasDeclaration)
+    .filter((node) => (node as any).name.text === aliasName);
+
+  if (!aliasNodes.length) { return; }
+  if (aliasNodes.length > 1) {
+    throw new GenerateMetadataError(`Multiple matching type alias found for ${aliasName}; please make alias type names unique.`);
+  }
+
+  const [aliasDefinition] = aliasNodes;
+  return resolveType(aliasDefinition['type'], aliasDefinition);
 }
 
 function getLiteralType(typeName: ts.EntityName): Tsoa.EnumerateType | undefined {

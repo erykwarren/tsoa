@@ -177,7 +177,7 @@ export class ParameterGenerator {
   }
 
   private supportPathDataType(parameterType: Tsoa.Type) {
-    return ['string', 'integer', 'long', 'float', 'double', 'date', 'datetime', 'buffer', 'boolean', 'enum', 'any'].find((t) => t === parameterType.dataType);
+    return ['string', 'integer', 'long', 'float', 'double', 'date', 'datetime', 'buffer', 'boolean', 'enum', 'any', 'refObject'].find((t) => t === parameterType.dataType);
   }
 
   private getValidatedType(parameter: ts.ParameterDeclaration, extractEnum = true) {
